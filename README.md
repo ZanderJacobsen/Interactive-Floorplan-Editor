@@ -1,8 +1,10 @@
-# Higharc Studio Lite
+# Interactive Floorplan Editor
 
-Higharc Studio Lite is a small floor-plan editor built with React, TypeScript, Three.js, React Three Fiber, and a lightweight Express persistence server.
+**[Try the live demo](https://zanderjacobsen.github.io/Interactive-Floorplan-Editor/)**
 
-The app started as a simple 2D polyline drawing prototype and now supports closed-room detection, overlap validation, room metadata editing, undo/redo, file import/export, and local server-backed persistence.
+An interactive 2D floorplan editor built with React, TypeScript, Three.js, and React Three Fiber. Draw rooms, edit their properties, and save your work.
+
+The editor supports closed-room detection, overlap validation, room metadata, undo/redo, and JSON import/export. The hosted demo saves each visitor's document in their browser; the repository also includes a lightweight Express server for local persistence.
 
 ## Features
 
@@ -40,16 +42,15 @@ The app started as a simple 2D polyline drawing prototype and now supports close
 - Load imports a previously exported JSON file.
 - Undo and redo history are included in saved files and server persistence.
 
-### Local Persistence
+### Persistence
 
-- The Express server stores the latest document state in `server/db.json`.
-- On app startup, the editor attempts to restore the last persisted state.
-- Changes to points, rooms, metadata, and history are saved back to the server after initialization.
+- **Live demo (GitHub Pages):** Saves the current floorplan and undo/redo history to your browser's `localStorage`. Data stays in that browser, not on a shared server.
+- **Local development:** Uses a lightweight Express API, storing the latest document in `server/db.json`. The app restores this state on startup.
 
 ## Project Structure
 
 ```txt
-higharc-studio-lite/
+interactive-floorplan-editor/
 ├── public/                  Static assets
 ├── server/
 │   ├── db.json              Local JSON persistence file, generated/updated by the server
@@ -62,7 +63,6 @@ higharc-studio-lite/
 │   ├── RoomInspector.tsx    Selected-room metadata editor
 │   ├── types.ts             Shared PolyLine and Room types
 │   └── utils.ts             Geometry, snapping, color, and rendering helpers
-├── INSTRUCTIONS.md          Assignment prompt and acceptance criteria
 ├── README.md                Project documentation
 └── package.json             Frontend and dependency configuration
 ```
@@ -93,7 +93,7 @@ Open the URL printed by Vite, usually:
 http://localhost:5173
 ```
 
-The client calls `/api/load` and `/api/save`. During local development, those API requests are routed to the Express server running on port `3000`.
+During local development, the Vite proxy routes `/api/load` and `/api/save` to the Express server on port `3000`. The GitHub Pages build uses browser storage instead.
 
 ## Build and Preview
 
@@ -109,9 +109,11 @@ Preview the built frontend:
 npm run preview
 ```
 
-For a deployed version, serve the built frontend and the Express API together or configure the frontend host to route `/api/*` requests to the Express server.
+GitHub Pages deployment is automated through [GitHub Actions](.github/workflows/deploy.yml) when changes are pushed to `main`. The hosted demo does not require the Express server.
 
-## API
+## Local Express API
+
+These endpoints are used during local development, not by the GitHub Pages demo.
 
 ### `GET /api/load`
 
