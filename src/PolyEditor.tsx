@@ -289,8 +289,15 @@ export default function PolyEditor() {
   useEffect(() => {
     const loadPersistedState = async () => {
       try {
-        const response = await fetch("/api/load");
-        const data = await response.json();
+        // The public GitHub Pages demo stores each visitor's data in their browser.
+        // Local development continues to use the Express persistence server.
+        const data = import.meta.env.PROD
+          ? JSON.parse(localStorage.getItem("floorplan-editor-state") ?? "null")
+          : await (async () => {
+              const response = await fetch("/api/load");
+              if (!response.ok) throw new Error("Failed to load saved floorplan");
+              return response.json();
+            })();
 
         // If the server returns data (meaning a save exists), restore it!
         if (data) {
@@ -321,6 +328,11 @@ export default function PolyEditor() {
       const data = { points, finalPoints, rooms, prevStates, redoStates };
 
       try {
+        if (import.meta.env.PROD) {
+          localStorage.setItem("floorplan-editor-state", JSON.stringify(data));
+          return;
+        }
+
         const response = await fetch("/api/save", {
           method: "POST",
           headers: {
